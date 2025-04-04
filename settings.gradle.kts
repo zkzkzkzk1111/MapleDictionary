@@ -21,4 +21,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "MapleDictionary"
 include(":app")
- 
+include(":domain")
+include(":presentation")
+include(":data")
+include(":common")
+include(":remote")
