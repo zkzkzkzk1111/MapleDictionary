@@ -2,11 +2,13 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlinKsp)
 }
 
 android {
     namespace = "com.kmj.mapledictionary"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.kmj.mapledictionary"
@@ -47,6 +49,9 @@ dependencies {
     implementation(project(":remote"))
     implementation(project(":common"))
 
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.multidex)
+    implementation(libs.hilt.navigation.compose)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -63,4 +68,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+
+    implementation(libs.hilt)
+    ksp(libs.hilt.compiler)
 }
