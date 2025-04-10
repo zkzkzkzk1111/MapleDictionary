@@ -1,15 +1,37 @@
 package com.kmj.remote.api
 
+import com.kmj.remote.api.model.ItemDetailResponse
 import com.kmj.remote.api.model.ItemResponse
+import com.kmj.remote.api.model.MonsterDetailResponse
+import com.kmj.remote.api.model.MonsterResponse
 import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 
 interface ApiService {
     @GET("items/")
-    suspend fun getItems():ItemResponse
+    suspend fun getItems(
+        @Query("maxEntries") maxEntries: Int,
+        @Query("page") page: Int,
+        @Query("cash") cash: Boolean=false
+    ):ItemResponse
 
     @GET("item/{itemId}/icon")
     suspend fun getItemImage(@Path("itemId") itemId: Int): ResponseBody
+
+    @GET("monsters/")
+    suspend fun getMonsters(
+        @Query("maxEntries") maxEntries: Int,
+        @Query("page") page: Int,
+    ):MonsterResponse
+    @GET("monster/{monsterId}/icon")
+    suspend fun getMonsterImage(@Path("monsterId") monsterId: Int): ResponseBody
+
+    @GET("item/{itemId}")
+    suspend fun getItemDetail(@Path("itemId") itemId: Int): ItemDetailResponse
+
+    @GET("monster/{monsterId}")
+    suspend fun getMonsterDetail(@Path("monsterId") monsterId: Int): MonsterDetailResponse
 }

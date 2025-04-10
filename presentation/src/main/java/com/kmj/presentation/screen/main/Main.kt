@@ -1,15 +1,16 @@
-package com.kmj.presentation.main
+package com.kmj.presentation.screen.main
 
-import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,35 +44,44 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.kmj.presentaion.R
 import com.kmj.presentation.model.ItemModel
+import com.kmj.presentation.model.MonsterModel
 import com.kmj.presentation.util.LocalCustomImageLoader
+import com.kmj.presentation.util.Screen
 import java.io.File
 import java.net.URI
 
 @Composable
 fun Main(
+    navController : NavController,
     viewModel: MainViewModel = hiltViewModel()
 ) {
 
     val itemList by viewModel.items.collectAsState()
+    val monsterList by viewModel.monsters.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadItems()
+        viewModel.loadMonsters()
     }
 
     LazyColumn(
-        Modifier.background(color = Color(0xFFffffff))
+        Modifier.background(color = Color(0xFFffffff)).padding(start=20.dp)
     ) {
         item{
+            Spacer(modifier = Modifier.height(50.dp))
             MainSearch()
             Spacer(modifier = Modifier.height(20.dp))
-            ItemSection(items = itemList)
+            ItemSection(items = itemList,viewModel = viewModel,navController=navController)
             Spacer(modifier = Modifier.height(30.dp))
-            MonsterSection()
+            MonsterSection(monsters = monsterList ,viewModel = viewModel, navController=navController)
         }
     }
 }
@@ -79,7 +90,7 @@ fun Main(
 fun MainSearch() {
     var text by remember { mutableStateOf("") }
     Column(
-        Modifier.fillMaxWidth()
+        Modifier.fillMaxWidth().padding(end=20.dp)
     ) {
         BasicTextField(
             value = text,
@@ -128,7 +139,9 @@ fun MainSearch() {
 
 @Composable
 fun ItemSection(
-    items: List<ItemModel>
+    items: List<ItemModel>,
+    viewModel : MainViewModel,
+    navController:NavController
 ){
     Column() {
         Row(
@@ -163,7 +176,10 @@ fun ItemSection(
                     color = Color(0xFF181818),
 
                     letterSpacing = 0.34.sp,
-                )
+                ),
+                modifier = Modifier.padding(end=20.dp).clickable {
+                    navController.navigate(Screen.List.route)
+                }
             )
 
         }
@@ -172,7 +188,28 @@ fun ItemSection(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(items) { item ->
-                ItemList(Item = item)
+                ItemList(Item = item , navController=navController)
+            }
+
+            item {
+                if (items.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .width(40.dp)
+                            .height(100.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp
+                        )
+
+
+                        LaunchedEffect(Unit) {
+                            viewModel.loadMoreItems()
+                        }
+                    }
+                }
             }
         }
     }
@@ -180,26 +217,25 @@ fun ItemSection(
 
 @Composable
 fun ItemList(
-    Item : ItemModel
+    Item : ItemModel,
+    navController:NavController
 ){
-
     val file = File(URI(Item.ItemImageUrl))
-    val bitmap = remember {
-        BitmapFactory.decodeFile(file.absolutePath)
-    }
-
-    Column(){
+    Column(
+        Modifier.clickable {
+            navController.navigate(Screen.ItemDetail.createRoute(Item.id))
+        }
+    ){
         Box(
-            Modifier.background(color = Color(0xFFFFF7CC)).padding(15.dp),
+            Modifier.background(color = Color(0xFFFFF7CC)).padding(15.dp).size(70.dp),
             contentAlignment = Alignment.Center,
 
         ){
-            Image(
-                bitmap = bitmap.asImageBitmap(),
+            AsyncImage(
+                model = file,
                 contentDescription = "ItemImageUrl",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .width(100.dp)
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize()
             )
         }
         Spacer(Modifier.height(5.dp))
@@ -208,7 +244,12 @@ fun ItemList(
             text = Item.name,
             fontSize = 10.sp,
             color = Color(0xff000000),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Start,
+            softWrap = true,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.width(70.dp)
+
         )
         Spacer(Modifier.height(3.dp))
         Row(
@@ -218,7 +259,8 @@ fun ItemList(
                 text = "필요레벨",
                 fontSize = 10.sp,
                 color = Color(0xff000000),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+
             )
             Spacer(Modifier.width(5.dp))
             Text(
@@ -234,7 +276,11 @@ fun ItemList(
 }
 
 @Composable
-fun MonsterSection(){
+fun MonsterSection(
+    monsters : List<MonsterModel>,
+    viewModel : MainViewModel,
+    navController : NavController
+){
     Column() {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -254,7 +300,6 @@ fun MonsterSection(){
                     lineHeight = 10.sp,
                     fontWeight = FontWeight(600),
                     color = Color(0xFF181818),
-
                     letterSpacing = 0.34.sp,
                 )
             )
@@ -266,18 +311,39 @@ fun MonsterSection(){
                     lineHeight = 10.sp,
                     fontWeight = FontWeight(400),
                     color = Color(0xFF181818),
-
                     letterSpacing = 0.34.sp,
-                )
+                ),
+                modifier = Modifier.padding(end=20.dp).clickable {
+                    navController.navigate("List")
+                }
             )
-
         }
         Spacer(Modifier.height(10.dp))
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            item{
-                MomsterList()
+            items(monsters) { item ->
+                MomsterList(Item = item,navController=navController)
+            }
+
+            item {
+                if (monsters.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .width(40.dp)
+                            .height(100.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp
+                        )
+
+                        LaunchedEffect(Unit) {
+                            viewModel.loadMoreMonsters()
+                        }
+                    }
+                }
             }
         }
 
@@ -285,42 +351,58 @@ fun MonsterSection(){
 }
 
 @Composable
-fun MomsterList(){
-    Column(){
+fun MomsterList(
+    Item : MonsterModel,
+    navController:NavController
+){
+    val file = File(URI(Item.monsterImageUrl))
+
+
+    Column(
+        Modifier.clickable {
+            navController.navigate(Screen.MonsterDetail.createRoute(Item.id))
+        }
+    ){
         Box(
-            Modifier.background(color = Color(0xFFFFF7CC)).padding(15.dp),
+            Modifier.background(color = Color(0xFFFFF7CC)).padding(15.dp).size(70.dp),
             contentAlignment = Alignment.Center,
 
             ){
-            Image(
-                painter = painterResource(R.drawable.fireicon),
-                contentDescription = "itemimg",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .width(100.dp)
+            AsyncImage(
+                model = file,
+                contentDescription = "ItemImageUrl",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize()
 
             )
         }
         Spacer(Modifier.height(5.dp))
 
         Text(
-            text = "이름",
+            text = Item.name,
             fontSize = 10.sp,
             color = Color(0xff000000),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Start,
+            softWrap = true,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.width(70.dp)
+
         )
         Spacer(Modifier.height(3.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ){
             Text(
-                text = "필요레벨",
+                text = "레벨",
                 fontSize = 10.sp,
                 color = Color(0xff000000),
-                textAlign = TextAlign.Center
-            )
+                textAlign = TextAlign.Center,
+
+                )
+            Spacer(Modifier.width(5.dp))
             Text(
-                text = "10",
+                text = Item.level.toString(),
                 fontSize = 10.sp,
                 color = Color(0xff000000),
                 textAlign = TextAlign.Center

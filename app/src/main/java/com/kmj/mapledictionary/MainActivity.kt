@@ -13,7 +13,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.kmj.mapledictionary.ui.theme.MapleDictionaryTheme
-import com.kmj.presentation.main.Main
+import com.kmj.presentation.screen.main.Main
+import com.kmj.presentation.util.AppNavigation
 import com.kmj.presentation.util.CustomImageLoader
 import com.kmj.presentation.util.LocalCustomImageLoader
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,7 +32,7 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(
                 LocalCustomImageLoader provides imageLoader
             ) {
-                Main()
+                AppNavigation()
             }
 
         }

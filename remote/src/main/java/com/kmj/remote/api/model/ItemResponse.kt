@@ -3,6 +3,7 @@ package com.kmj.remote.api.model
 import com.google.gson.annotations.SerializedName
 import com.kmj.data.model.ItemEntity
 import com.kmj.remote.RemoteMapper
+
 data class ItemResponse(
     @SerializedName("result")
     val result: List<ItemResult>

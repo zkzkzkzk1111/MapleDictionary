@@ -55,7 +55,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.androidx.material3)
-    implementation(libs.navigation.compose)
     implementation(libs.retrofit.kotlinx.converter)
     implementation(libs.retrofit)
     implementation(libs.okhttp)
