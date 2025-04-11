@@ -34,9 +34,7 @@ class MainActivity : ComponentActivity() {
             ) {
                 AppNavigation()
             }
-
         }
     }
-
 }
 

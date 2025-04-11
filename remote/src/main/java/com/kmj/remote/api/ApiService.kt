@@ -2,7 +2,10 @@ package com.kmj.remote.api
 
 import com.kmj.remote.api.model.ItemDetailResponse
 import com.kmj.remote.api.model.ItemResponse
+import com.kmj.remote.api.model.MapDetailResponse
+import com.kmj.remote.api.model.MapResponse
 import com.kmj.remote.api.model.MonsterDetailResponse
+import com.kmj.remote.api.model.MonsterFoundAtResponse
 import com.kmj.remote.api.model.MonsterResponse
 import okhttp3.ResponseBody
 import retrofit2.http.GET
@@ -34,4 +37,14 @@ interface ApiService {
 
     @GET("monster/{monsterId}")
     suspend fun getMonsterDetail(@Path("monsterId") monsterId: Int): MonsterDetailResponse
+
+
+}
+interface ApiService1 {
+    @GET("KMS/389/mob/{monsterId}")
+    suspend fun getMonsterFoundAt(@Path("monsterId") monsterId: Int) : MonsterFoundAtResponse
+    @GET("KMS/389/map/{mapId}")
+    suspend fun getMapDetail(@Path("mapId") mapId: Int) : MapDetailResponse
+    @GET("KMS/389/map")
+    suspend fun getMaps() : List<MapResponse>
 }

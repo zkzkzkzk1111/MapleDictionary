@@ -4,10 +4,13 @@ import android.content.Context
 import android.util.Log
 import com.kmj.data.model.ItemDetailEntity
 import com.kmj.data.model.ItemEntity
+import com.kmj.data.model.MapDetailEntity
+import com.kmj.data.model.MapEntity
 import com.kmj.data.model.MonsterDetailEntity
 import com.kmj.data.model.MonsterEntity
 import com.kmj.data.remote.MapleStoryRemoteDataSource
 import com.kmj.remote.api.ApiService
+import com.kmj.remote.api.ApiService1
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -19,14 +22,15 @@ import javax.inject.Inject
 
 class MapleStoryRemoteDataSourceImpl @Inject constructor(
     private val apiService: ApiService,
+    private val apiService1: ApiService1,
     @ApplicationContext private val context: Context
 ) : MapleStoryRemoteDataSource {
 
     override suspend fun getItem(page: Int, maxEntries: Int): List<ItemEntity> = coroutineScope {
-        Log.d("PaginationDebug", "Requesting items with page=$page, maxEntries=$maxEntries")
+
         val itemsDeferred = async { apiService.getItems(page = page, maxEntries = maxEntries) }
         val items = itemsDeferred.await()
-        Log.d("PaginationDebug", "API returned ${items.result.size} items")
+
 
         items.result.map { itemResult ->
             val imageDeferred = async { getItemImage(itemResult.itemId) }
@@ -43,21 +47,57 @@ class MapleStoryRemoteDataSourceImpl @Inject constructor(
         }
     }
 
+
     override suspend fun getMonster(page: Int, maxEntries: Int): List<MonsterEntity> = coroutineScope {
         val monstersDeferred = async { apiService.getMonsters(page = page, maxEntries = maxEntries) }
         val monsters = monstersDeferred.await()
         monsters.result.map { monsterResult ->
             val imageDeferred = async { getMonsterImage(monsterResult.monsterId) }
+            val foundAtDeferred = async { getMonsterFoundAt(monsterResult.monsterId) }
+
             val imageUrl = imageDeferred.await()
+            val foundAt = foundAtDeferred.await()
+
+
 
             with(monsterResult) {
                 MonsterEntity(
                     monsterId = monsterId,
                     name = name,
                     level = stats.level,
-                    imageUrl = imageUrl
+                    imageUrl = imageUrl,
+                    foundAt = foundAt
                 )
             }
+        }
+    }
+
+    override suspend fun getMap(): List<MapEntity> = coroutineScope {
+        val mapsDeferred = async { apiService1.getMaps() }
+        val maps = mapsDeferred.await()
+
+        maps.map { mapResult ->
+            with(mapResult) {
+                MapEntity(
+                    id = id,
+                    name = name,
+                    streetName = streetName
+                )
+            }
+        }
+    }
+
+
+    override suspend fun getMapDetail(mapId:Int): MapDetailEntity = coroutineScope {
+        val mapDeferred = async { apiService1.getMapDetail(mapId) }
+        val mapDetail = mapDeferred.await()
+
+        with(mapDetail) {
+            MapDetailEntity(
+                id = id,
+                name = name,
+                mobIds = mobs.map { it.id }.distinct()
+            )
         }
     }
 
@@ -115,6 +155,16 @@ class MapleStoryRemoteDataSourceImpl @Inject constructor(
         }
     }
 
+    private suspend fun getMonsterFoundAt(monsterId: Int): List<Int> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService1.getMonsterFoundAt(monsterId)
+            Log.d("FoundAtAPI", "응답: $response")
+            return@withContext response.foundAt
+        } catch (e: Exception) {
+            return@withContext emptyList()
+        }
+    }
+
     override suspend fun getItemDetail(itemId: Int): ItemDetailEntity = coroutineScope {
         val itemDetailDeferred = async { apiService.getItemDetail(itemId) }
         val imageDeferred = async { getItemImage(itemId) }
@@ -138,9 +188,10 @@ class MapleStoryRemoteDataSourceImpl @Inject constructor(
     override suspend fun getMonsterDetail(monsterId: Int): MonsterDetailEntity = coroutineScope{
         val monsterDetailDeferred = async { apiService.getMonsterDetail(monsterId) }
         val imageDeferred = async { getMonsterImage(monsterId) }
-
+        val foundAtDeferred = async { getMonsterFoundAt(monsterId) }
         val monsterDetail = monsterDetailDeferred.await()
         val imageUrl = imageDeferred.await()
+        val foundAt = foundAtDeferred.await()
 
         with(monsterDetail) {
             MonsterDetailEntity(
@@ -151,9 +202,8 @@ class MapleStoryRemoteDataSourceImpl @Inject constructor(
                 stats = stats,
                 behavior = behavior,
                 rewards = rewards,
-
+                foundAt = foundAt
             )
         }
     }
-
 }

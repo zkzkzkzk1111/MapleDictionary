@@ -16,4 +16,9 @@ internal object AppModule {
     fun provideBaseUrl(application: Application): String =
         (application as MyApplication).baseUrl
 
+    @Provides
+    @Named("baseUrl1")
+    fun provideBaseUrl1(application: Application): String =
+        (application as MyApplication).baseUrl1
+
 }

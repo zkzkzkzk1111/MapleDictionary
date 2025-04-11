@@ -26,3 +26,22 @@ fun createApiService(baseUrl: String): ApiService {
         .create(ApiService::class.java)
 
 }
+
+fun createApiService1(baseUrl1: String): ApiService1 {
+    val okHttpClient = OkHttpClient.Builder().apply {
+        readTimeout(TIME_OUT.toLong(), TimeUnit.SECONDS)
+        writeTimeout(TIME_OUT.toLong(), TimeUnit.SECONDS)
+        connectTimeout(TIME_OUT.toLong(), TimeUnit.SECONDS)
+
+        addNetworkInterceptor(RequestHeaderInterceptor())
+
+    }.build()
+
+    return Retrofit.Builder()
+        .baseUrl(baseUrl1)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(ApiService1::class.java)
+
+}

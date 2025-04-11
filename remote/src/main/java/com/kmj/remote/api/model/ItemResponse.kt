@@ -22,7 +22,7 @@ data class ItemResult(
             itemId = itemId,
             name = name,
             level = requiredStats.level,
-            imageUrl = ""
+            imageUrl = "",
 
         )
 }

@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kmj.domain.usecase.GetItemUseCase
+import com.kmj.domain.usecase.GetMapUseCase
 import com.kmj.domain.usecase.GetMonsterUseCase
 import com.kmj.domain.util.onSuccess
 import com.kmj.presentation.model.ItemModel
+import com.kmj.presentation.model.MapModel
 import com.kmj.presentation.model.MonsterModel
 import com.kmj.presentation.model.toPresentation
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +22,7 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val getItemUseCase : GetItemUseCase,
     private val getMonsterUseCase : GetMonsterUseCase,
+    private val getMapUseCase: GetMapUseCase
 ):ViewModel(){
 
     private val _items = MutableStateFlow<List<ItemModel>>(emptyList())
@@ -30,6 +33,9 @@ class MainViewModel @Inject constructor(
 
     private val _error = MutableStateFlow<Throwable?>(null)
     val error = _error.asStateFlow()
+
+    val _maps = MutableStateFlow<List<MapModel>>(emptyList())
+    val maps = _maps.asStateFlow()
 
     private val pageSize = 5
 
@@ -109,6 +115,25 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
+
+    fun loadMaps() {
+        viewModelScope.launch {
+            try {
+                _maps.value = emptyList()
+                getMapUseCase().collect { result ->
+                    result.onSuccess { map ->
+                        val mapList = map.map { it.toPresentation() }
+                        _maps.value = mapList
+
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Exception in loadMonsters", e)
+            }
+        }
+    }
+
     fun loadMonsters() {
         viewModelScope.launch {
             try {

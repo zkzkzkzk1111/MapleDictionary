@@ -5,6 +5,8 @@ import com.kmj.data.remote.MapleStoryRemoteDataSource
 import com.kmj.data.toDomain
 import com.kmj.domain.model.Item
 import com.kmj.domain.model.ItemDetail
+import com.kmj.domain.model.Map
+import com.kmj.domain.model.MapDetail
 import com.kmj.domain.model.Monster
 import com.kmj.domain.model.MonsterDetail
 import com.kmj.domain.repository.MapleStoryRepository
@@ -22,10 +24,16 @@ internal class MapleStoryRepositoryImpl @Inject constructor(
     override fun getMonsters(page: Int, maxEntries: Int): Flow<ApiResult<List<Monster>>> =
         flowDataResource { mapleStoryRemoteDataSource.getMonster(page, maxEntries).toDomain() }
 
+    override fun getMaps(): Flow<ApiResult<List<Map>>> =
+        flowDataResource { mapleStoryRemoteDataSource.getMap().toDomain() }
+
     override fun getItemDetail(itemId:Int): Flow<ApiResult<ItemDetail>> =
         flowDataResource { mapleStoryRemoteDataSource.getItemDetail(itemId).toDomain() }
 
     override fun getMonsterDetail(monsterId:Int): Flow<ApiResult<MonsterDetail>> =
         flowDataResource { mapleStoryRemoteDataSource.getMonsterDetail(monsterId).toDomain() }
+
+    override fun getMapDetail(mapId:Int): Flow<ApiResult<MapDetail>> =
+        flowDataResource { mapleStoryRemoteDataSource.getMapDetail(mapId).toDomain() }
 }
 

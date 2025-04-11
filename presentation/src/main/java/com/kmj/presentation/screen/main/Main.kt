@@ -52,7 +52,9 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.kmj.presentaion.R
 import com.kmj.presentation.model.ItemModel
+import com.kmj.presentation.model.MapModel
 import com.kmj.presentation.model.MonsterModel
+import com.kmj.presentation.screen.detail.map.MapViewModel
 import com.kmj.presentation.util.LocalCustomImageLoader
 import com.kmj.presentation.util.Screen
 import java.io.File
@@ -61,16 +63,24 @@ import java.net.URI
 @Composable
 fun Main(
     navController : NavController,
-    viewModel: MainViewModel = hiltViewModel()
+    viewModel: MainViewModel = hiltViewModel(),
+
 ) {
 
     val itemList by viewModel.items.collectAsState()
     val monsterList by viewModel.monsters.collectAsState()
+    val mapList by viewModel.maps.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadItems()
         viewModel.loadMonsters()
+        viewModel.loadMaps()
+
     }
+
+    Log.d("MapData22222",mapList.toString())
+
+
 
     LazyColumn(
         Modifier.background(color = Color(0xFFffffff)).padding(start=20.dp)
@@ -82,6 +92,8 @@ fun Main(
             ItemSection(items = itemList,viewModel = viewModel,navController=navController)
             Spacer(modifier = Modifier.height(30.dp))
             MonsterSection(monsters = monsterList ,viewModel = viewModel, navController=navController)
+            Spacer(modifier = Modifier.height(30.dp))
+            MapSection(items = mapList ,navController=navController)
         }
     }
 }
@@ -403,6 +415,131 @@ fun MomsterList(
             Spacer(Modifier.width(5.dp))
             Text(
                 text = Item.level.toString(),
+                fontSize = 10.sp,
+                color = Color(0xff000000),
+                textAlign = TextAlign.Center
+            )
+        }
+
+    }
+
+}
+
+@Composable
+fun MapSection(
+    items: List<MapModel>,
+    navController:NavController
+) {
+
+    Log.d("MapData",items.toString())
+    Column() {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.fireicon),
+                contentDescription = "fireicon",
+                modifier = Modifier
+                    .size(18.dp)
+
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = "지도 맵",
+                style = TextStyle(
+                    fontSize = 17.sp,
+                    lineHeight = 10.sp,
+                    fontWeight = FontWeight(600),
+                    color = Color(0xFF181818),
+
+                    letterSpacing = 0.34.sp,
+                )
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = "전체보기",
+                style = TextStyle(
+                    fontSize = 15.sp,
+                    lineHeight = 10.sp,
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFF181818),
+
+                    letterSpacing = 0.34.sp,
+                ),
+                modifier = Modifier.padding(end = 20.dp).clickable {
+                    navController.navigate(Screen.List.route)
+                }
+            )
+
+        }
+        Spacer(Modifier.height(10.dp))
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(items) { item ->
+                MapItem(Item = item, navController = navController)
+            }
+
+            item {
+                if (items.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .width(40.dp)
+                            .height(100.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp
+                        )
+
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MapItem(
+    Item : MapModel,
+    navController:NavController
+){
+
+    Log.d("MapData",Item.toString())
+
+    Column(
+        Modifier.clickable {
+            navController.navigate(Screen.ItemDetail.createRoute(Item.id))
+        }
+    ){
+        Box(
+            Modifier.background(color = Color(0xFFFFF7CC)).padding(15.dp).size(70.dp),
+            contentAlignment = Alignment.Center,
+
+            ){
+
+        }
+        Spacer(Modifier.height(5.dp))
+
+        Text(
+            text = Item.name,
+            fontSize = 10.sp,
+            color = Color(0xff000000),
+            textAlign = TextAlign.Start,
+            softWrap = true,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.width(70.dp)
+
+        )
+        Spacer(Modifier.height(3.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ){
+
+            Text(
+                text = Item.streetName,
                 fontSize = 10.sp,
                 color = Color(0xff000000),
                 textAlign = TextAlign.Center
