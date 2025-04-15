@@ -9,6 +9,7 @@ import com.kmj.domain.model.Map
 import com.kmj.domain.model.MapDetail
 import com.kmj.domain.model.Monster
 import com.kmj.domain.model.MonsterDetail
+import com.kmj.domain.model.NPC
 import com.kmj.domain.repository.MapleStoryRepository
 import com.kmj.domain.util.ApiResult
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +28,9 @@ internal class MapleStoryRepositoryImpl @Inject constructor(
     override fun getMaps(): Flow<ApiResult<List<Map>>> =
         flowDataResource { mapleStoryRemoteDataSource.getMap().toDomain() }
 
+    override fun getNPC(): Flow<ApiResult<List<NPC>>> =
+        flowDataResource { mapleStoryRemoteDataSource.getNPC().toDomain() }
+
     override fun getItemDetail(itemId:Int): Flow<ApiResult<ItemDetail>> =
         flowDataResource { mapleStoryRemoteDataSource.getItemDetail(itemId).toDomain() }
 
@@ -35,5 +39,6 @@ internal class MapleStoryRepositoryImpl @Inject constructor(
 
     override fun getMapDetail(mapId:Int): Flow<ApiResult<MapDetail>> =
         flowDataResource { mapleStoryRemoteDataSource.getMapDetail(mapId).toDomain() }
+
 }
 

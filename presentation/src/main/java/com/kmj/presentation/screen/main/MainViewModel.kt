@@ -34,8 +34,6 @@ class MainViewModel @Inject constructor(
     private val _error = MutableStateFlow<Throwable?>(null)
     val error = _error.asStateFlow()
 
-    val _maps = MutableStateFlow<List<MapModel>>(emptyList())
-    val maps = _maps.asStateFlow()
 
     private val pageSize = 5
 
@@ -112,24 +110,6 @@ class MainViewModel @Inject constructor(
                 Log.e("MainViewModel", "Error loading monsters", e)
             } finally {
                 monsterIsLoading = false
-            }
-        }
-    }
-
-
-    fun loadMaps() {
-        viewModelScope.launch {
-            try {
-                _maps.value = emptyList()
-                getMapUseCase().collect { result ->
-                    result.onSuccess { map ->
-                        val mapList = map.map { it.toPresentation() }
-                        _maps.value = mapList
-
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("MainViewModel", "Exception in loadMonsters", e)
             }
         }
     }

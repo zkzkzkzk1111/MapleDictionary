@@ -7,6 +7,8 @@ import com.kmj.remote.api.model.MapResponse
 import com.kmj.remote.api.model.MonsterDetailResponse
 import com.kmj.remote.api.model.MonsterFoundAtResponse
 import com.kmj.remote.api.model.MonsterResponse
+import com.kmj.remote.api.model.NPCDetailResponse
+import com.kmj.remote.api.model.NPCResponse
 import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -47,4 +49,10 @@ interface ApiService1 {
     suspend fun getMapDetail(@Path("mapId") mapId: Int) : MapDetailResponse
     @GET("KMS/389/map")
     suspend fun getMaps() : List<MapResponse>
+    @GET("KMS/389/map/{mapId}/icon")
+    suspend fun getMapIcons(@Path("mapId") mapId: Int) : ResponseBody
+    @GET("KMS/389/NPC")
+    suspend fun getNPCs() : List<NPCResponse>
+    @GET("KMS/389/NPC/{npcID}")
+    suspend fun getNPCDetail(npcID:Int) : NPCDetailResponse
 }

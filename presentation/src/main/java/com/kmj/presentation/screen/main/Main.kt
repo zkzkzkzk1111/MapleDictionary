@@ -36,9 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -54,8 +52,7 @@ import com.kmj.presentaion.R
 import com.kmj.presentation.model.ItemModel
 import com.kmj.presentation.model.MapModel
 import com.kmj.presentation.model.MonsterModel
-import com.kmj.presentation.screen.detail.map.MapViewModel
-import com.kmj.presentation.util.LocalCustomImageLoader
+import com.kmj.presentation.viewmodel.MapViewModel
 import com.kmj.presentation.util.Screen
 import java.io.File
 import java.net.URI
@@ -64,23 +61,18 @@ import java.net.URI
 fun Main(
     navController : NavController,
     viewModel: MainViewModel = hiltViewModel(),
-
+    mapviewModel: MapViewModel = hiltViewModel(),
 ) {
 
     val itemList by viewModel.items.collectAsState()
     val monsterList by viewModel.monsters.collectAsState()
-    val mapList by viewModel.maps.collectAsState()
+    val mapList by mapviewModel.maps.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadItems()
         viewModel.loadMonsters()
-        viewModel.loadMaps()
-
+        mapviewModel.loadMaps()
     }
-
-    Log.d("MapData22222",mapList.toString())
-
-
 
     LazyColumn(
         Modifier.background(color = Color(0xFFffffff)).padding(start=20.dp)
@@ -164,7 +156,6 @@ fun ItemSection(
                 contentDescription = "fireicon",
                 modifier = Modifier
                     .size(18.dp)
-
             )
             Spacer(modifier = Modifier.height(5.dp))
             Text(
@@ -193,7 +184,6 @@ fun ItemSection(
                     navController.navigate(Screen.List.route)
                 }
             )
-
         }
         Spacer(Modifier.height(10.dp))
         LazyRow(
@@ -202,7 +192,6 @@ fun ItemSection(
             items(items) { item ->
                 ItemList(Item = item , navController=navController)
             }
-
             item {
                 if (items.isNotEmpty()) {
                     Box(
@@ -215,8 +204,6 @@ fun ItemSection(
                             modifier = Modifier.size(20.dp),
                             strokeWidth = 2.dp
                         )
-
-
                         LaunchedEffect(Unit) {
                             viewModel.loadMoreItems()
                         }
@@ -241,7 +228,6 @@ fun ItemList(
         Box(
             Modifier.background(color = Color(0xFFFFF7CC)).padding(15.dp).size(70.dp),
             contentAlignment = Alignment.Center,
-
         ){
             AsyncImage(
                 model = file,
@@ -251,7 +237,6 @@ fun ItemList(
             )
         }
         Spacer(Modifier.height(5.dp))
-
         Text(
             text = Item.name,
             fontSize = 10.sp,
@@ -261,7 +246,6 @@ fun ItemList(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.width(70.dp)
-
         )
         Spacer(Modifier.height(3.dp))
         Row(
@@ -272,7 +256,6 @@ fun ItemList(
                 fontSize = 10.sp,
                 color = Color(0xff000000),
                 textAlign = TextAlign.Center,
-
             )
             Spacer(Modifier.width(5.dp))
             Text(
@@ -282,9 +265,7 @@ fun ItemList(
                 textAlign = TextAlign.Center
             )
         }
-
     }
-
 }
 
 @Composable
@@ -337,7 +318,6 @@ fun MonsterSection(
             items(monsters) { item ->
                 MomsterList(Item = item,navController=navController)
             }
-
             item {
                 if (monsters.isNotEmpty()) {
                     Box(
@@ -350,7 +330,6 @@ fun MonsterSection(
                             modifier = Modifier.size(20.dp),
                             strokeWidth = 2.dp
                         )
-
                         LaunchedEffect(Unit) {
                             viewModel.loadMoreMonsters()
                         }
@@ -358,7 +337,6 @@ fun MonsterSection(
                 }
             }
         }
-
     }
 }
 
@@ -368,7 +346,6 @@ fun MomsterList(
     navController:NavController
 ){
     val file = File(URI(Item.monsterImageUrl))
-
 
     Column(
         Modifier.clickable {
@@ -385,11 +362,9 @@ fun MomsterList(
                 contentDescription = "ItemImageUrl",
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize()
-
             )
         }
         Spacer(Modifier.height(5.dp))
-
         Text(
             text = Item.name,
             fontSize = 10.sp,
@@ -399,7 +374,6 @@ fun MomsterList(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.width(70.dp)
-
         )
         Spacer(Modifier.height(3.dp))
         Row(
@@ -410,7 +384,6 @@ fun MomsterList(
                 fontSize = 10.sp,
                 color = Color(0xff000000),
                 textAlign = TextAlign.Center,
-
                 )
             Spacer(Modifier.width(5.dp))
             Text(
@@ -420,9 +393,7 @@ fun MomsterList(
                 textAlign = TextAlign.Center
             )
         }
-
     }
-
 }
 
 @Composable
@@ -430,8 +401,8 @@ fun MapSection(
     items: List<MapModel>,
     navController:NavController
 ) {
-
     Log.d("MapData",items.toString())
+
     Column() {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -441,7 +412,6 @@ fun MapSection(
                 contentDescription = "fireicon",
                 modifier = Modifier
                     .size(18.dp)
-
             )
             Spacer(modifier = Modifier.height(5.dp))
             Text(
@@ -451,7 +421,6 @@ fun MapSection(
                     lineHeight = 10.sp,
                     fontWeight = FontWeight(600),
                     color = Color(0xFF181818),
-
                     letterSpacing = 0.34.sp,
                 )
             )
@@ -463,14 +432,12 @@ fun MapSection(
                     lineHeight = 10.sp,
                     fontWeight = FontWeight(400),
                     color = Color(0xFF181818),
-
                     letterSpacing = 0.34.sp,
                 ),
                 modifier = Modifier.padding(end = 20.dp).clickable {
                     navController.navigate(Screen.List.route)
                 }
             )
-
         }
         Spacer(Modifier.height(10.dp))
         LazyRow(
@@ -479,7 +446,6 @@ fun MapSection(
             items(items) { item ->
                 MapItem(Item = item, navController = navController)
             }
-
             item {
                 if (items.isNotEmpty()) {
                     Box(
@@ -492,7 +458,6 @@ fun MapSection(
                             modifier = Modifier.size(20.dp),
                             strokeWidth = 2.dp
                         )
-
                     }
                 }
             }
@@ -506,11 +471,9 @@ fun MapItem(
     navController:NavController
 ){
 
-    Log.d("MapData",Item.toString())
-
     Column(
         Modifier.clickable {
-            navController.navigate(Screen.ItemDetail.createRoute(Item.id))
+            navController.navigate(Screen.MapDetail.createRoute(Item.id))
         }
     ){
         Box(
@@ -518,10 +481,15 @@ fun MapItem(
             contentAlignment = Alignment.Center,
 
             ){
+                Image(
+                painter = painterResource(R.drawable.mapleicon),
+                contentDescription = "mapleicon",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize()
 
+            )
         }
         Spacer(Modifier.height(5.dp))
-
         Text(
             text = Item.name,
             fontSize = 10.sp,
@@ -537,7 +505,6 @@ fun MapItem(
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ){
-
             Text(
                 text = Item.streetName,
                 fontSize = 10.sp,
@@ -545,7 +512,5 @@ fun MapItem(
                 textAlign = TextAlign.Center
             )
         }
-
     }
-
 }

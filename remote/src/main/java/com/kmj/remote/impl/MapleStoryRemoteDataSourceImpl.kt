@@ -8,12 +8,15 @@ import com.kmj.data.model.MapDetailEntity
 import com.kmj.data.model.MapEntity
 import com.kmj.data.model.MonsterDetailEntity
 import com.kmj.data.model.MonsterEntity
+import com.kmj.data.model.NPCEntity
 import com.kmj.data.remote.MapleStoryRemoteDataSource
 import com.kmj.remote.api.ApiService
 import com.kmj.remote.api.ApiService1
+import com.kmj.remote.api.model.NPCDetailResponse
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -76,6 +79,7 @@ class MapleStoryRemoteDataSourceImpl @Inject constructor(
         val mapsDeferred = async { apiService1.getMaps() }
         val maps = mapsDeferred.await()
 
+
         maps.map { mapResult ->
             with(mapResult) {
                 MapEntity(
@@ -96,11 +100,11 @@ class MapleStoryRemoteDataSourceImpl @Inject constructor(
             MapDetailEntity(
                 id = id,
                 name = name,
+                streetName = streetName,
                 mobIds = mobs.map { it.id }.distinct()
             )
         }
     }
-
 
 
     private suspend fun getItemImage(itemId: Int): String = withContext(Dispatchers.IO) {
@@ -155,6 +159,32 @@ class MapleStoryRemoteDataSourceImpl @Inject constructor(
         }
     }
 
+    private suspend fun getMapImage(mapId: Int): String = withContext(Dispatchers.IO) {
+        try {
+            val responseBody = apiService1.getMapIcons(mapId)
+            val cacheDir = context.cacheDir
+            val imageFile = File(cacheDir, "map_${mapId}.png")
+
+            responseBody.byteStream().use { input ->
+                FileOutputStream(imageFile).use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            if (imageFile.exists() && imageFile.length() > 0) {
+                Log.d("ImageDebug", "Image saved for map $mapId:: ${imageFile.length()} bytes")
+                val imageUrl = "file://${imageFile.absolutePath}"
+                return@withContext imageUrl
+            } else {
+                Log.e("ImageDebug", "Failed to save image for map $mapId:")
+                return@withContext "https://via.placeholder.com/150"
+            }
+        } catch (e: Exception) {
+            Log.e("ImageDebug", "Error processing map $mapId: ${e.message}", e)
+            return@withContext "https://via.placeholder.com/150"
+        }
+    }
+
     private suspend fun getMonsterFoundAt(monsterId: Int): List<Int> = withContext(Dispatchers.IO) {
         try {
             val response = apiService1.getMonsterFoundAt(monsterId)
@@ -204,6 +234,34 @@ class MapleStoryRemoteDataSourceImpl @Inject constructor(
                 rewards = rewards,
                 foundAt = foundAt
             )
+        }
+    }
+
+
+    override suspend fun getNPC(): List<NPCEntity> = coroutineScope {
+        val npcsDeferred = async { apiService1.getNPCs() }
+        val npcs = npcsDeferred.await()
+
+
+        val detailedNpcs = npcs.map { npcResult ->
+            async {
+                val npcDetail = getMPCDetail(npcResult.id)
+                NPCEntity(
+                    id = npcResult.id,
+                    name = npcDetail.name,
+                    foundAt = npcDetail.foundAt
+                )
+            }
+        }
+        detailedNpcs.awaitAll()
+    }
+
+    private suspend fun getMPCDetail(npcId: Int): NPCDetailResponse = withContext(Dispatchers.IO) {
+        try {
+            apiService1.getNPCDetail(npcId)
+        } catch (e: Exception) {
+            Log.e("NPCDebug", "Error fetching NPC detail for $npcId: ${e.message}", e)
+            NPCDetailResponse(npcId, "Unknown", emptyList())
         }
     }
 }
