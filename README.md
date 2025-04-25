@@ -8,42 +8,42 @@ app → presentation → domain ← data ← remote
 
 MyApplication
 │
-├── app                 # Application 
+├── app                       
 │   
-├── presentation        # UI Layer
-│   ├── manifests       
-│   └── kotlin+java    
-│       └── com.kmj     
-│           └── ...     # UI 
+├── presentation              # UI Layer
+│   ├── manifests             
+│   └── kotlin+java         
+│       └── com.kmj           
+│           └── ...           # UI 
 │
-├── domain              # Business Logic Layer
-│   ├── manifests      
+├── domain                    # Business Logic Layer
+│   ├── manifests            
 │   └── kotlin+java
 │       └── com.kmj.domain
-│           ├── model        
-│           ├── repository   
-│           ├── usecase     
-│           └── util        
+│           ├── model         
+│           ├── repository    
+│           ├── usecase       
+│           └── util         
 │
-├── data                # Data Layer
-│   ├── manifests       
+├── data                      # Data Layer
+│   ├── manifests             
 │   └── kotlin+java
 │       └── com.kmj.data
-│           ├── bound        
-│           ├── di          
-│           ├── model       
+│           ├── bound         # Data binding
+│           ├── di           
+│           ├── model        
 │           ├── remote      
-│           ├── repository  
+│           ├── repository    
 │           └── DataMapper.kt 
 │
-└── remote              # Network Layer
-├── manifests       
+└── remote                    # Network Layer
+├── manifests            
 └── kotlin+java
 └── com.kmj.remote
-├── api         
-├── di          
-├── impl        
-└── RemoteMapper 
+├── api           
+├── di           
+├── impl         
+└── RemoteMapper  
 <br><br>
 
 ## TODO
