@@ -5,45 +5,8 @@
 ## Clean Architecture Module
 
 app → presentation → domain ← data ← remote
-
-MyApplication
-│
-├── app                       
-│   
-├── presentation              # UI Layer
-│   ├── manifests             
-│   └── kotlin+java         
-│       └── com.kmj           
-│           └── ...           # UI 
-│
-├── domain                    # Business Logic Layer
-│   ├── manifests            
-│   └── kotlin+java
-│       └── com.kmj.domain
-│           ├── model         
-│           ├── repository    
-│           ├── usecase       
-│           └── util         
-│
-├── data                      # Data Layer
-│   ├── manifests             
-│   └── kotlin+java
-│       └── com.kmj.data
-│           ├── bound         # Data binding
-│           ├── di           
-│           ├── model        
-│           ├── remote      
-│           ├── repository    
-│           └── DataMapper.kt 
-│
-└── remote                    # Network Layer
-├── manifests            
-└── kotlin+java
-└── com.kmj.remote
-├── api           
-├── di           
-├── impl         
-└── RemoteMapper  
+<br>
+<img src="img/screen.jpg"/>
 <br><br>
 
 ## TODO
