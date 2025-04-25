@@ -54,5 +54,5 @@ interface ApiService1 {
     @GET("KMS/389/NPC")
     suspend fun getNPCs() : List<NPCResponse>
     @GET("KMS/389/NPC/{npcID}")
-    suspend fun getNPCDetail(npcID:Int) : NPCDetailResponse
+    suspend fun getNPCDetail(@Path("npcID") npcID:Int) : NPCDetailResponse
 }

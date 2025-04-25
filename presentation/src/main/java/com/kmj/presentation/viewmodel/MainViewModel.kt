@@ -1,4 +1,4 @@
-package com.kmj.presentation.screen.main
+package com.kmj.presentation.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -8,7 +8,6 @@ import com.kmj.domain.usecase.GetMapUseCase
 import com.kmj.domain.usecase.GetMonsterUseCase
 import com.kmj.domain.util.onSuccess
 import com.kmj.presentation.model.ItemModel
-import com.kmj.presentation.model.MapModel
 import com.kmj.presentation.model.MonsterModel
 import com.kmj.presentation.model.toPresentation
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,14 +33,10 @@ class MainViewModel @Inject constructor(
     private val _error = MutableStateFlow<Throwable?>(null)
     val error = _error.asStateFlow()
 
-
     private val pageSize = 5
-
     private var currentPage = 0
     private var isLoading = false
     private var hasMoreItems = true
-
-
     private var monsterCurrentPage = 0
     private var monsterIsLoading = false
     private var monsterHasMoreItems = true
@@ -133,6 +128,7 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
     fun loadItems(){
         viewModelScope.launch {
             try{

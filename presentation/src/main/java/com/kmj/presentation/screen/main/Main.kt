@@ -54,6 +54,8 @@ import com.kmj.presentation.model.MapModel
 import com.kmj.presentation.model.MonsterModel
 import com.kmj.presentation.viewmodel.MapViewModel
 import com.kmj.presentation.util.Screen
+import com.kmj.presentation.viewmodel.MainViewModel
+import com.kmj.presentation.viewmodel.NPCViewModel
 import java.io.File
 import java.net.URI
 
@@ -72,7 +74,12 @@ fun Main(
         viewModel.loadItems()
         viewModel.loadMonsters()
         mapviewModel.loadMaps()
+
     }
+
+    Log.d("monsterListnpcList",monsterList.toString())
+
+
 
     LazyColumn(
         Modifier.background(color = Color(0xFFffffff)).padding(start=20.dp)

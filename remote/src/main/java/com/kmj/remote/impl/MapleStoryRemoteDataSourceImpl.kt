@@ -19,6 +19,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
@@ -242,26 +243,50 @@ class MapleStoryRemoteDataSourceImpl @Inject constructor(
         val npcsDeferred = async { apiService1.getNPCs() }
         val npcs = npcsDeferred.await()
 
-
         val detailedNpcs = npcs.map { npcResult ->
             async {
-                val npcDetail = getMPCDetail(npcResult.id)
-                NPCEntity(
-                    id = npcResult.id,
-                    name = npcDetail.name,
-                    foundAt = npcDetail.foundAt
-                )
+                try {
+                    val npcDetail = getMPCDetail(npcResult.id)
+                    NPCEntity(
+                        id = npcResult.id,
+                        name = npcDetail.name ?: "",
+                        foundAt = npcDetail.foundAt?.map { it.id ?: 0 } ?: emptyList()
+                    )
+                } catch (e: Exception) {
+                    Log.e("NPCDebug", "Failed to fetch detail for ${npcResult.id}: ${e.message}", e)
+                    NPCEntity(
+                        id = npcResult.id,
+                        name = "",
+                        foundAt = emptyList()
+                    )
+                }
             }
         }
-        detailedNpcs.awaitAll()
+
+        val result = detailedNpcs.awaitAll()
+
+        // ✅ 로그로 출력
+        result.forEach { npc ->
+            Log.d("NPCResult", "NPCEntity(id=${npc.id}, name=${npc.name}, foundAt=${npc.foundAt})")
+        }
+
+        return@coroutineScope result
     }
 
     private suspend fun getMPCDetail(npcId: Int): NPCDetailResponse = withContext(Dispatchers.IO) {
         try {
             apiService1.getNPCDetail(npcId)
+        } catch (e: HttpException) {
+            if (e.code() == 404) {
+                Log.w("NPCDebug", "NPC $npcId not found (404), using default values.")
+                NPCDetailResponse(id = npcId, name = null, foundAt = emptyList())
+            } else {
+                Log.e("NPCDebug", "Http error for NPC $npcId: ${e.code()} ${e.message()}", e)
+                throw e
+            }
         } catch (e: Exception) {
-            Log.e("NPCDebug", "Error fetching NPC detail for $npcId: ${e.message}", e)
-            NPCDetailResponse(npcId, "Unknown", emptyList())
+            Log.e("NPCDebug", "Unexpected error fetching NPC detail for $npcId: ${e.message}", e)
+            NPCDetailResponse(id = npcId, name = null, foundAt = emptyList())
         }
     }
 }
