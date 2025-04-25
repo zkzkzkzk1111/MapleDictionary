@@ -7,7 +7,7 @@
 app → presentation → domain ← data ← remote
 
 <br>
-<img src="img/screen.png"/>
+<img src="img/screen.png" width="200"/>
 <br><br>
 
 ## TODO
