@@ -5,8 +5,9 @@
 ## Clean Architecture Module
 
 app → presentation → domain ← data ← remote
+
 <br>
-<img src="img/screen.jpg"/>
+<img src="img/screen.png"/>
 <br><br>
 
 ## TODO
